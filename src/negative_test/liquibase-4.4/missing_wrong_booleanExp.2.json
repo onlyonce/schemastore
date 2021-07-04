@@ -11,7 +11,7 @@
               "catalogName": "cat",
               "columnDataType": "int",
               "columnName": "id",
-              "defaultOnNull": false,
+              "defaultOnNull": "something",
               "generationType": "ALWAYS",
               "incrementBy": 1,
               "schemaName": "public",

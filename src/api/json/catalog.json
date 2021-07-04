@@ -3097,7 +3097,10 @@
         "**/db/changelog/**/*.yml",
         "**/db/changelog/**/*.json"
       ],
-      "url": "https://json.schemastore.org/liquibase.json"
+      "url": "https://json.schemastore.org/liquibase-4.4.json",
+      "versions": {
+        "4.4": "https://json.schemastore.org/liquibase-4.4.json"
+      }
     },
     {
       "name": "Pipeline component",

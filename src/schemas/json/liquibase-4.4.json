@@ -1,6 +1,123 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "definitions": {
+        "propertyExpression": {
+            "type": "string",
+            "pattern": "\\$\\{[\\w.]+\\}"
+        },
+        "booleanExp": {
+            "description": "Extension to standard XSD boolean type to allow ${} parameters",
+            "anyOf": [
+                {
+                    "type": "boolean"
+                },
+                {
+                    "$ref": "#/definitions/propertyExpression"
+                }
+            ]
+        },
+        "integerExp": {
+            "description": "Extension to standard XSD integer type to allow ${} parameters",
+            "anyOf": [
+                {
+                    "type": "integer"
+                },
+                {
+                    "$ref": "#/definitions/propertyExpression"
+                }
+            ]
+        },
+        "onChangeSetPreconditionErrorOrFail": {
+            "description": "Controls what happens if the preconditions check fails.",
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "HALT",
+                    "description": "Halts the execution of the entire changelog (default)."
+                },
+                {
+                    "const": "CONTINUE",
+                    "description": "Skips over the changeset. Execution of the changeset will be attempted again on the next update. Continues with the changelog."
+                },
+                {
+                    "const": "MARK_RAN",
+                    "description": "Skips over the changeset but mark it as executed. Continues with the changelog."
+                },
+                {
+                    "const": "WARN",
+                    "description": "Sends a warning and continues executing the changeset as normal."
+                }
+            ]
+        },
+        "onChangeLogPreconditionErrorOrFail": {
+            "description": "Controls what happens if the preconditions check fails.",
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "HALT",
+                    "description": "Halts the execution of the entire changelog (default)."
+                },
+                {
+                    "const": "WARN",
+                    "description": "Sends a warning and continues executing the changelog as normal."
+                }
+            ]
+        },
+        "onChangeLogPreconditionOnSqlOutput": {
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "TEST",
+                    "description": "Runs the changeset in the updateSQL mode."
+                },
+                {
+                    "const": "FAIL",
+                    "description": "Fails the preCondition in the updateSQL mode."
+                },
+                {
+                    "const": "IGNORE",
+                    "description": "Ignores the preCondition in the updateSQL mode (default)."
+                }
+            ]
+        },
+        "onChangeSetValidationFail": {
+            "description": "Controls what happens if the preconditions check fails.",
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "HALT",
+                    "description": "Halts the execution of the entire changelog (default)."
+                },
+                {
+                    "const": "MARK_RAN",
+                    "description": "Skips over the changeset but mark it as executed. Continues with the changelog."
+                }
+            ]
+        },
+        "objectQuotingStrategy": {
+            "description": "FIXME",
+            "enum": [
+                "LEGACY",
+                "QUOTE_ALL_OBJECTS",
+                "QUOTE_ONLY_RESERVED_WORDS"
+            ]
+        },
+
+        "rollback": {
+            "$ref": "#/definitions/changeSetChildren",
+            "properties": {
+                "changeSetPath": {
+                    "type": "string"
+                },
+                "changeSetAuthor": {
+                    "type": "string"
+                },
+                "changeSetId" : {
+                    "type": "string"
+                }
+            }
+        },
+
         "catalogName": {
             "description": "The name of the catalog",
             "type": "string",
@@ -46,12 +163,12 @@
                 },
                 "computed": {
                     "description": "The attribute which is used if the value in name isn't actually a column name but a function. Since 3.3.0",
-                    "type": "boolean",
+                    "$ref": "#/definitions/booleanExp",
                     "default": false
                 },
                 "descending": {
                     "description": "The boolean attribute which allows you to specify that a column should be used in a descending order in the index if it is used in a createIndex command. Default value is false (in an ascending order) Since 3.4",
-                    "type": "boolean",
+                    "$ref": "#/definitions/booleanExp",
                     "default": false
                 },
                 "type": {
@@ -123,7 +240,7 @@
                 },
                 "defaultValueBoolean": {
                     "description": "The default boolean value for column.",
-                    "type": "boolean",
+                    "$ref": "#/definitions/booleanExp",
                     "default": false
                 },
                 "defaultValueComputed": {
@@ -145,7 +262,7 @@
                 },
                 "autoIncrement": {
                     "description": "The auto-increment column. Ignored on databases that do not support the autoincrement/identity functionality.",
-                    "type": "boolean",
+                    "$ref": "#/definitions/booleanExp",
                     "default": false
                 },
                 "startWith": {
@@ -163,7 +280,7 @@
                     "default": ""
                 },
                 "defaultOnNull": {
-                    "type": "boolean",
+                    "$ref": "#/definitions/booleanExp",
                     "default": false
                 },
                 "remarks": {
@@ -176,6 +293,7 @@
                     "type": "string",
                     "default": ""
                 },
+
                 "beforeColumn": {
                     "$comment": "https://docs.liquibase.com/change-types/community/create-table.html",
                     "description": "The attribute that allows you to control where in the table column order the new column goes if it is used in an addColumn command. Only one of beforeColumn, afterColumn, or position is allowed. Since 3.1",
@@ -213,7 +331,7 @@
                     "properties": {
                         "nullable": {
                             "description": "The attribute that defines whether the column is nullable.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "notNullConstraintName": {
@@ -223,7 +341,7 @@
                         },
                         "primaryKey": {
                             "description": "The attribute that defines whether the column is a primary key.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "primaryKeyName": {
@@ -238,7 +356,7 @@
                         },
                         "unique": {
                             "description": "The attribute that defines whether a unique clause should be applied.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "uniqueConstraintName": {
@@ -278,17 +396,17 @@
                         },
                         "deleteCascade": {
                             "description": "The attribute that sets delete cascade.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "deferrable": {
                             "description": "The attribute that defines whether constraints are deferrable.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "initiallyDeferred": {
                             "description": "The attribute that defines whether constraints are initially deferred.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "checkConstraint": {
@@ -298,22 +416,22 @@
                         },
                         "validateNullable": {
                             "description": "The attribute that defines whether to validate the defined not null constraint.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "validateUnique": {
                             "description": "The attribute that defines whether to validate the defined unique constraint.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "validatePrimaryKey": {
                             "description": "The attribute that defines whether to validate the defined primary key constraint.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         },
                         "validateForeignKey": {
                             "description": "The attribute that defines whether to validate the defined foreign key constraint.",
-                            "type": "boolean",
+                            "$ref": "#/definitions/booleanExp",
                             "default": false
                         }
                     },
@@ -357,79 +475,39 @@
                         "default": {},
                         "properties": {
                             "onFailMessage": {
-                                "description": "Provides a custom message to output when preconditions fail. Since 2.0",
+                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
                                 "type": "string",
                                 "default": ""
                             },
                             "onErrorMessage": {
-                                "description": "Provides a custom message to output when preconditions fail. Since 2.0",
+                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
                                 "type": "string",
                                 "default": ""
                             },
                             "onFail": {
-                                "description": "Controls what happens if the preconditions check fails.",
-                                "type": "string",
-                                "oneOf": [
-                                    {
-                                        "const": "HALT",
-                                        "description": "Halts the execution of the entire changelog (default). HALT can be put outside a changeset (e.g. at the beginning of the changelog)."
-                                    },
-                                    {
-                                        "const": "CONTINUE",
-                                        "description": "Skips over the changeset. Execution of the changeset will be attempted again on the next update. Continues with the changelog."
-                                    },
-                                    {
-                                        "const": "MARK_RAN",
-                                        "description": "Skips over the changeset but mark it as executed. Continues with the changelog."
-                                    },
-                                    {
-                                        "const": "WARN",
-                                        "description": "Sends a warning and continues executing the changeset / changelog as normal. WARN can be put outside a changeset (e.g. at the beginning of the changelog)."
-                                    }
-                                ],
+                                "description": "Controls what happens if the preconditions check fails. maxOccurs=1",
+                                "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
                                 "default": "HALT"
                             },
                             "onError": {
-                                "description": "Controls what happens if there is an error checking whether the precondition passed or not.",
-                                "type": "string",
-                                "oneOf": [
-                                    {
-                                        "const": "HALT",
-                                        "description": "Halts the execution of the entire changelog (default). HALT can be put outside a changeset (e.g. at the beginning of the changelog)."
-                                    },
-                                    {
-                                        "const": "CONTINUE",
-                                        "description": "Skips over the changeset. Execution of the changeset will be attempted again on the next update. Continues with the changelog."
-                                    },
-                                    {
-                                        "const": "MARK_RAN",
-                                        "description": "Skips over the changeset but mark it as executed. Continues with the changelog."
-                                    },
-                                    {
-                                        "const": "WARN",
-                                        "description": "Sends a warning and continues executing the changeset / changelog as normal. WARN can be put outside a changeset (e.g. at the beginning of the changelog)."
-                                    }
-                                ],
+                                "description": "Controls what happens if there is an error checking whether the precondition passed or not. maxOccurs=1",
+                                "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
                                 "default": "HALT"
                             },
                             "onSqlOutput": {
-                                "description": "Controls what to do in the updateSQL mode. Since 1.9.5",
-                                "type": "string",
-                                "oneOf": [
-                                    {
-                                        "const": "TEST",
-                                        "description": "Runs the changeset in the updateSQL mode."
-                                    },
-                                    {
-                                        "const": "FAIL",
-                                        "description": "Fails the preCondition in the updateSQL mode."
-                                    },
-                                    {
-                                        "const": "IGNORE",
-                                        "description": "Ignores the preCondition in the updateSQL mode (default)."
-                                    }
-                                ],
+                                "description": "Controls what to do in the updateSQL mode. maxOccurs=1",
+                                "$ref": "#/definitions/onChangeLogPreconditionOnSqlOutput",
                                 "default": "IGNORE"
+                            },
+
+                            "and": {
+                                "$ref": "#/definitions/preConditions"
+                            },
+                            "or": {
+                                "$ref": "#/definitions/preConditions"
+                            },
+                            "not": {
+                                "$ref": "#/definitions/preConditions"
                             },
                             "dbms": {
                                 "description": "Defines if the database executed against matches the type specified.",
@@ -483,6 +561,24 @@
                                     }
                                 }
                             },
+                            "tableExists": {
+                                "description": "Defines if the specified table exists in the database.",
+                                "type": "object",
+                                "default": {},
+                                "required": [
+                                    "tableName"
+                                ],
+                                "properties": {
+                                    "schemaName": {
+                                        "description": "The name of the table's schema.",
+                                        "type": "string"
+                                    },
+                                    "tableName": {
+                                        "description": "The name of the table. (required)",
+                                        "type": "string"
+                                    }
+                                }
+                            },
                             "columnExists": {
                                 "description": "Defines if the specified column exists in the database.",
                                 "type": "object",
@@ -506,38 +602,20 @@
                                     }
                                 }
                             },
-                            "tableExists": {
-                                "description": "Defines if the specified table exists in the database.",
+                            "sequenceExists": {
+                                "description": "Defines if the specified sequence exists in the database.",
                                 "type": "object",
                                 "default": {},
                                 "required": [
-                                    "tableName"
+                                    "sequenceName"
                                 ],
                                 "properties": {
                                     "schemaName": {
-                                        "description": "The name of the table's schema.",
+                                        "description": "The name of the sequences' schema.",
                                         "type": "string"
                                     },
-                                    "tableName": {
-                                        "description": "The name of the table. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "viewExists": {
-                                "description": "Defines if the specified view exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "viewName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the view's schema.",
-                                        "type": "string"
-                                    },
-                                    "viewName": {
-                                        "description": "The name of the view. (required)",
+                                    "sequenceName": {
+                                        "description": "The name of the sequence. (required)",
                                         "type": "string"
                                     }
                                 }
@@ -583,24 +661,6 @@
                                     }
                                 }
                             },
-                            "sequenceExists": {
-                                "description": "Defines if the specified sequence exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "sequenceName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the sequences' schema.",
-                                        "type": "string"
-                                    },
-                                    "sequenceName": {
-                                        "description": "The name of the sequence. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
                             "primaryKeyExists": {
                                 "description": "Defines if the specified primary key exists in the database.\n(tableName or primaryKeyName is required)",
                                 "type": "object",
@@ -619,6 +679,27 @@
                                         "type": "string"
                                     }
                                 }
+                            },
+                            "viewExists": {
+                                "description": "Defines if the specified view exists in the database.",
+                                "type": "object",
+                                "default": {},
+                                "required": [
+                                    "viewName"
+                                ],
+                                "properties": {
+                                    "schemaName": {
+                                        "description": "The name of the view's schema.",
+                                        "type": "string"
+                                    },
+                                    "viewName": {
+                                        "description": "The name of the view. (required)",
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "FIXME": {
+                                "description": "Missing: tableIsEmpty; rowCount; expectedQuotingStrategy"
                             },
                             "sqlCheck": {
                                 "description": "Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.\n\nTo check a number of rows, use the count SQL function.\nTo check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.",
@@ -670,15 +751,6 @@
                                     }
                                 },
                                 "additionalProperties": true
-                            },
-                            "and": {
-                                "$ref": "#/definitions/preConditions"
-                            },
-                            "or": {
-                                "$ref": "#/definitions/preConditions"
-                            },
-                            "not": {
-                                "$ref": "#/definitions/preConditions"
                             }
                         },
                         "additionalProperties": true
@@ -934,7 +1006,7 @@
         },
         "tagDatabase": {
             "$comment": "https://docs.liquibase.com/change-types/community/tag-database.html",
-            "description": "The tagDatabase Change Type applies a tag to the database for future update or rollback.",
+            "description": "The tagDatabase Change Type applies a tag to the database for future update or rollback. maxOccurs=1",
             "type": "object",
             "default": {},
             "required": [
@@ -2071,7 +2143,7 @@
                 },
                 "defaultOnNull": {
                     "description": "When using generationType 'BY DEFAULT' then defaultOnNull = true allows the identity to be used if the identity column is referenced, but a value of NULL is specified.",
-                    "type": "boolean",
+                    "$ref": "#/definitions/booleanExp",
                     "default": ""
                 },
                 "generationType": {
@@ -2672,7 +2744,7 @@
             },
             "additionalProperties": true
         },
-        "changes": {
+        "changeSetChildren": {
             "type": "array",
             "default": [],
             "items": {
@@ -2699,9 +2771,6 @@
                             "dropView": {
                                 "$ref": "#/definitions/dropView"
                             },
-                            "empty": {
-                                "$ref": "#/definitions/empty"
-                            },
                             "insert": {
                                 "$ref": "#/definitions/insert"
                             },
@@ -2719,9 +2788,6 @@
                             },
                             "sqlFile": {
                                 "$ref": "#/definitions/sqlFile"
-                            },
-                            "stop": {
-                                "$ref": "#/definitions/stop"
                             },
                             "renameTable": {
                                 "$ref": "#/definitions/renameTable"
@@ -2819,11 +2885,17 @@
                             "executeCommand": {
                                 "$ref": "#/definitions/executeCommand"
                             },
+                            "stop": {
+                                "$ref": "#/definitions/stop"
+                            },
                             "output": {
                                 "$ref": "#/definitions/output"
                             },
-                            "modifySql": {
-                                "$ref": "#/definitions/modifySql"
+                            "empty": {
+                                "$ref": "#/definitions/empty"
+                            },
+                            "rollback": {
+                                "$ref": "#/definitions/rollback"
                             }
                         },
                         "additionalProperties": true
@@ -2849,21 +2921,6 @@
                         "type": "object",
                         "default": {},
                         "properties": {
-                            "logicalFilePath": {
-                                "description": "Overrides the file name and path when creating the unique identifier of changesets. It is required when you want to move or rename changelogs.",
-                                "type": "string",
-                                "default": ""
-                            },
-                            "context": {
-                                "$comment": "https://docs.liquibase.com/concepts/advanced/contexts.html",
-                                "type": "string",
-                                "default": ""
-                            },
-                            "objectQuotingStrategy": {
-                                "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. The names of objects are used differently in databases. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
-                                "type": "string",
-                                "default": ""
-                            },
                             "property": {
                                 "$comment": "https://docs.liquibase.com/concepts/basic/changelog-property-substitution.html",
                                 "description": "Liquibase allows a dynamic substitution of properties in your changelog. The tokens to replace in your changelog are described using the ${property-name} syntax.",
@@ -2922,6 +2979,15 @@
                                     "author"
                                 ],
                                 "properties": {
+                                    "validCheckSum": {
+                                        "description": "Adds a checksum that is considered valid for this changeset, regardless of what is stored in the database. It is primarily used when you need to change a changeset and don't want errors thrown on databases on which it has already been run (not a recommended procedure). Special value \"1:any\" will match to any checksum and will not execute the changeset on ANY change.",
+                                        "$comment": "FIXME comment ignored",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+
                                     "id": {
                                         "description": "Specifies an alpha-numeric identifier. Required",
                                         "type": "string",
@@ -2947,26 +3013,26 @@
                                     },
                                     "runOnChange": {
                                         "description": "Executes the changeset the first time and each time the changeset has been changed.",
-                                        "type": "boolean",
+                                        "$ref": "#/definitions/booleanExp",
                                         "default": false
                                     },
                                     "runAlways": {
                                         "description": "Executes the changeset on every run, even if it has been run before.",
-                                        "type": "boolean",
+                                        "$ref": "#/definitions/booleanExp",
                                         "default": false
                                     },
                                     "failOnError": {
                                         "description": "Defines whether the migration will fail if an error occurs while executing the changeset. Default value is true.",
-                                        "type": "boolean",
+                                        "$ref": "#/definitions/booleanExp",
                                         "default": true
                                     },
                                     "onValidationFail": {
-                                        "type": "string",
+                                        "$ref": "#/definitions/onChangeSetValidationFail",
                                         "default": ""
                                     },
                                     "runInTransaction": {
                                         "description": "Specifies whether the changeset can be ran as a single transaction (if possible). Default value is true.",
-                                        "type": "boolean",
+                                        "$ref": "#/definitions/booleanExp",
                                         "default": true
                                     },
                                     "logicalFilePath": {
@@ -2976,7 +3042,7 @@
                                     },
                                     "objectQuotingStrategy": {
                                         "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. Different databases do different things to the names of objects. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
-                                        "type": "string",
+                                        "$ref": "#/definitions/objectQuotingStrategy",
                                         "default": ""
                                     },
                                     "created": {
@@ -2991,20 +3057,14 @@
                                     },
                                     "ignore": {
                                         "description": "Ignores the changeset from the execution. Since 3.6",
-                                        "type": "boolean",
+                                        "$ref": "#/definitions/booleanExp",
                                         "default": false
                                     },
                                     "runWith": {
                                         "type": "string",
                                         "default": ""
                                     },
-                                    "validCheckSum": {
-                                        "description": "Adds a checksum that is considered valid for this changeset, regardless of what is stored in the database. It is primarily used when you need to change a changeset and don't want errors thrown on databases on which it has already been run (not a recommended procedure). Special value \"1:any\" will match to any checksum and will not execute the changeset on ANY change. Since 1.7",
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
+
                                     "preConditions": {
                                         "$ref": "#/definitions/preConditions"
                                     },
@@ -3014,10 +3074,10 @@
                                         "default": ""
                                     },
                                     "changes": {
-                                        "$ref": "#/definitions/changes"
+                                        "$ref": "#/definitions/changeSetChildren"
                                     },
                                     "rollback": {
-                                        "$ref": "#/definitions/changes"
+                                        "$ref": "#/definitions/rollback"
                                     },
                                     "modifySql": {
                                         "type": "array",
@@ -3111,6 +3171,24 @@
                                     }
                                 },
                                 "additionalProperties": true
+                            },
+                            "logicalFilePath": {
+                                "description": "Overrides the file name and path when creating the unique identifier of changesets. It is required when you want to move or rename changelogs.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "context": {
+                                "$comment": "https://docs.liquibase.com/concepts/advanced/contexts.html",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "changeLogId": {
+                                "type": "string"
+                            },
+                            "objectQuotingStrategy": {
+                                "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. The names of objects are used differently in databases. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
+                                "$ref": "#/definitions/objectQuotingStrategy",
+                                "default": ""
                             }
                         },
                         "additionalProperties": true

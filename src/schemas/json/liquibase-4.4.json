@@ -111,55 +111,177 @@
             "type": "array",
             "default": [],
             "items": {
-                "anyOf": [
-                    {
+                "type": "object",
+                "default": {},
+                "properties": {
+                    "property": {
+                        "$comment": "https://docs.liquibase.com/concepts/basic/changelog-property-substitution.html",
+                        "description": "Liquibase allows a dynamic substitution of properties in your changelog. The tokens to replace in your changelog are described using the ${property-name} syntax.",
                         "type": "object",
                         "default": {},
                         "properties": {
-                            "property": {
-                                "$comment": "https://docs.liquibase.com/concepts/basic/changelog-property-substitution.html",
-                                "description": "Liquibase allows a dynamic substitution of properties in your changelog. The tokens to replace in your changelog are described using the ${property-name} syntax.",
-                                "type": "object",
-                                "default": {},
-                                "properties": {
-                                    "file": {
-                                        "description": "The name of the file from which the properties should be loaded. It will create a property for all properties in the file. The content of the file must follow the java properties file format.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "name": {
-                                        "description": "The name of the parameter. Required if file is not set",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "value": {
-                                        "description": "The value of the property. Required if file is not set",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "dbms": {
-                                        "$ref": "#/definitions/dbms"
-                                    },
-                                    "context": {
-                                        "description": "Contexts in which the property is valid. Expected as a comma-separated list.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "labels": {
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "global": {
-                                        "description": "Boolean. Defines whether the property is global or limited to the actual DATABASECHANGELOG. It is given as true or false.",
-                                        "type": "boolean",
-                                        "default": true
-                                    },
-                                    "target": {
-                                        "type": "string",
-                                        "default": ""
-                                    }
-                                },
-                                "additionalProperties": true
+                            "file": {
+                                "description": "The name of the file from which the properties should be loaded. It will create a property for all properties in the file. The content of the file must follow the java properties file format.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "name": {
+                                "description": "The name of the parameter. Required if file is not set",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "value": {
+                                "description": "The value of the property. Required if file is not set",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "dbms": {
+                                "$ref": "#/definitions/dbms"
+                            },
+                            "context": {
+                                "description": "Contexts in which the property is valid. Expected as a comma-separated list.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "labels": {
+                                "type": "string",
+                                "default": ""
+                            },
+                            "global": {
+                                "description": "Boolean. Defines whether the property is global or limited to the actual DATABASECHANGELOG. It is given as true or false.",
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "target": {
+                                "type": "string",
+                                "default": ""
+                            }
+                        },
+                        "additionalProperties": true
+                    },
+                    "preConditions": {
+                        "$ref": "#/definitions/PreConditionChildren",
+                        "properties": {
+                            "onFailMessage": {
+                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "onErrorMessage": {
+                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "onFail": {
+                                "description": "Controls what happens if the preconditions check fails. maxOccurs=1",
+                                "$ref": "#/definitions/onChangeLogPreconditionErrorOrFail",
+                                "default": "HALT"
+                            },
+                            "onError": {
+                                "description": "Controls what happens if there is an error checking whether the precondition passed or not. maxOccurs=1",
+                                "$ref": "#/definitions/onChangeLogPreconditionErrorOrFail",
+                                "default": "HALT"
+                            },
+                            "onSqlOutput": {
+                                "description": "Controls what to do in the updateSQL mode. maxOccurs=1",
+                                "$ref": "#/definitions/onChangeLogPreconditionOnSqlOutput",
+                                "default": "IGNORE"
+                            }
+                        }
+                    },
+                    "changeSet": {
+                        "$comment": "https://docs.liquibase.com/concepts/basic/changeset.html",
+                        "description": "The changeset tag is a unit of change that Liquibase executes on a database and which is used to group database Change Types together. A list of changes created by multiple changesets are tracked in a changelog.\n\nA changeset is uniquely tagged by both an author and an id attributes (author:id), as well as the changelog file path. The id tag is only used as an identifier, it does not direct the order that changes are run and does not have to be an integer. If you do not know or do not want to save the actual author, use a placeholder value such as UNKNOWN. To execute the changeset, you must include both author and id.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "id",
+                            "author"
+                        ],
+                        "properties": {
+                            "validCheckSum": {
+                                "description": "Adds a checksum that is considered valid for this changeset, regardless of what is stored in the database. It is primarily used when you need to change a changeset and don't want errors thrown on databases on which it has already been run (not a recommended procedure). Special value \"1:any\" will match to any checksum and will not execute the changeset on ANY change.",
+                                "$comment": "FIXME comment ignored",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "id": {
+                                "description": "Specifies an alpha-numeric identifier. Required",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "author": {
+                                "description": "Specifies the creator of the changeset. Required",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "context": {
+                                "description": "Controls whether a changeset is executed depending on runtime settings. Any string can be used for the context name and they are checked case-insensitively.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "labels": {
+                                "description": "Controls whether a changeset is executed depending on runtime settings. Any string can be used for the label name and they are checked case-insensitively.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "dbms": {
+                                "$ref": "#/definitions/dbms"
+                            },
+                            "runOnChange": {
+                                "description": "Executes the changeset the first time and each time the changeset has been changed.",
+                                "$ref": "#/definitions/booleanExp",
+                                "default": false
+                            },
+                            "runAlways": {
+                                "description": "Executes the changeset on every run, even if it has been run before.",
+                                "$ref": "#/definitions/booleanExp",
+                                "default": false
+                            },
+                            "failOnError": {
+                                "description": "Defines whether the migration will fail if an error occurs while executing the changeset. Default value is true.",
+                                "$ref": "#/definitions/booleanExp",
+                                "default": true
+                            },
+                            "onValidationFail": {
+                                "$ref": "#/definitions/onChangeSetValidationFail",
+                                "default": ""
+                            },
+                            "runInTransaction": {
+                                "description": "Specifies whether the changeset can be ran as a single transaction (if possible). Default value is true.",
+                                "$ref": "#/definitions/booleanExp",
+                                "default": true
+                            },
+                            "logicalFilePath": {
+                                "description": "Overrides the file name and path when creating the unique identifier of changesets. Required when moving or renaming changelog.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "objectQuotingStrategy": {
+                                "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. Different databases do different things to the names of objects. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
+                                "$ref": "#/definitions/objectQuotingStrategy",
+                                "default": ""
+                            },
+                            "created": {
+                                "description": "Stores dates, versions, or any other string of value without using remarks (comments) attributes. Since 3.5",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "runOrder": {
+                                "description": "Overrides the order in the changelog from where the changeset with the runOrder=\"first|last\" will be run. It is typically used when you want a changeset to be always executed after everything else but don’t want to keep moving it to the end of the changelog. Setting the runOrder to last will automatically move it in the final changeset order.Since 3.5",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "ignore": {
+                                "description": "Ignores the changeset from the execution. Since 3.6",
+                                "$ref": "#/definitions/booleanExp",
+                                "default": false
+                            },
+                            "runWith": {
+                                "type": "string",
+                                "default": ""
                             },
                             "preConditions": {
                                 "$ref": "#/definitions/PreConditionChildren",
@@ -176,12 +298,12 @@
                                     },
                                     "onFail": {
                                         "description": "Controls what happens if the preconditions check fails. maxOccurs=1",
-                                        "$ref": "#/definitions/onChangeLogPreconditionErrorOrFail",
+                                        "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
                                         "default": "HALT"
                                     },
                                     "onError": {
                                         "description": "Controls what happens if there is an error checking whether the precondition passed or not. maxOccurs=1",
-                                        "$ref": "#/definitions/onChangeLogPreconditionErrorOrFail",
+                                        "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
                                         "default": "HALT"
                                     },
                                     "onSqlOutput": {
@@ -191,256 +313,130 @@
                                     }
                                 }
                             },
-                            "changeSet": {
-                                "$comment": "https://docs.liquibase.com/concepts/basic/changeset.html",
-                                "description": "The changeset tag is a unit of change that Liquibase executes on a database and which is used to group database Change Types together. A list of changes created by multiple changesets are tracked in a changelog.\n\nA changeset is uniquely tagged by both an author and an id attributes (author:id), as well as the changelog file path. The id tag is only used as an identifier, it does not direct the order that changes are run and does not have to be an integer. If you do not know or do not want to save the actual author, use a placeholder value such as UNKNOWN. To execute the changeset, you must include both author and id.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "id",
-                                    "author"
-                                ],
-                                "properties": {
-                                    "validCheckSum": {
-                                        "description": "Adds a checksum that is considered valid for this changeset, regardless of what is stored in the database. It is primarily used when you need to change a changeset and don't want errors thrown on databases on which it has already been run (not a recommended procedure). Special value \"1:any\" will match to any checksum and will not execute the changeset on ANY change.",
-                                        "$comment": "FIXME comment ignored",
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "id": {
-                                        "description": "Specifies an alpha-numeric identifier. Required",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "author": {
-                                        "description": "Specifies the creator of the changeset. Required",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "context": {
-                                        "description": "Controls whether a changeset is executed depending on runtime settings. Any string can be used for the context name and they are checked case-insensitively.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "labels": {
-                                        "description": "Controls whether a changeset is executed depending on runtime settings. Any string can be used for the label name and they are checked case-insensitively.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "dbms": {
-                                        "$ref": "#/definitions/dbms"
-                                    },
-                                    "runOnChange": {
-                                        "description": "Executes the changeset the first time and each time the changeset has been changed.",
-                                        "$ref": "#/definitions/booleanExp",
-                                        "default": false
-                                    },
-                                    "runAlways": {
-                                        "description": "Executes the changeset on every run, even if it has been run before.",
-                                        "$ref": "#/definitions/booleanExp",
-                                        "default": false
-                                    },
-                                    "failOnError": {
-                                        "description": "Defines whether the migration will fail if an error occurs while executing the changeset. Default value is true.",
-                                        "$ref": "#/definitions/booleanExp",
-                                        "default": true
-                                    },
-                                    "onValidationFail": {
-                                        "$ref": "#/definitions/onChangeSetValidationFail",
-                                        "default": ""
-                                    },
-                                    "runInTransaction": {
-                                        "description": "Specifies whether the changeset can be ran as a single transaction (if possible). Default value is true.",
-                                        "$ref": "#/definitions/booleanExp",
-                                        "default": true
-                                    },
-                                    "logicalFilePath": {
-                                        "description": "Overrides the file name and path when creating the unique identifier of changesets. Required when moving or renaming changelog.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "objectQuotingStrategy": {
-                                        "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. Different databases do different things to the names of objects. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
-                                        "$ref": "#/definitions/objectQuotingStrategy",
-                                        "default": ""
-                                    },
-                                    "created": {
-                                        "description": "Stores dates, versions, or any other string of value without using remarks (comments) attributes. Since 3.5",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "runOrder": {
-                                        "description": "Overrides the order in the changelog from where the changeset with the runOrder=\"first|last\" will be run. It is typically used when you want a changeset to be always executed after everything else but don’t want to keep moving it to the end of the changelog. Setting the runOrder to last will automatically move it in the final changeset order.Since 3.5",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "ignore": {
-                                        "description": "Ignores the changeset from the execution. Since 3.6",
-                                        "$ref": "#/definitions/booleanExp",
-                                        "default": false
-                                    },
-                                    "runWith": {
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "preConditions": {
-                                        "$ref": "#/definitions/PreConditionChildren",
-                                        "properties": {
-                                            "onFailMessage": {
-                                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
-                                                "type": "string",
-                                                "default": ""
-                                            },
-                                            "onErrorMessage": {
-                                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
-                                                "type": "string",
-                                                "default": ""
-                                            },
-                                            "onFail": {
-                                                "description": "Controls what happens if the preconditions check fails. maxOccurs=1",
-                                                "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
-                                                "default": "HALT"
-                                            },
-                                            "onError": {
-                                                "description": "Controls what happens if there is an error checking whether the precondition passed or not. maxOccurs=1",
-                                                "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
-                                                "default": "HALT"
-                                            },
-                                            "onSqlOutput": {
-                                                "description": "Controls what to do in the updateSQL mode. maxOccurs=1",
-                                                "$ref": "#/definitions/onChangeLogPreconditionOnSqlOutput",
-                                                "default": "IGNORE"
-                                            }
-                                        }
-                                    },
-                                    "comment": {
-                                        "description": "Specifies the description of the changeset. XML comments will provide the same benefit. Future releases of Liquibase may be able to make use of <comment> tag comments to generate documentation.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "changes": {
-                                        "$ref": "#/definitions/changeSetChildren"
-                                    },
-                                    "rollback": {
-                                        "$ref": "#/definitions/rollback"
-                                    },
-                                    "modifySql": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/definitions/modifySql"
-                                        }
-                                    }
-                                },
-                                "additionalProperties": true
-                            },
-                            "include": {
-                                "$comment": "https://docs.liquibase.com/concepts/advanced/include.html",
-                                "description": "The <include> tag is used within your master changelog to reference other changelogs.",
-                                "type": "object",
-                                "default": {},
-                                "properties": {
-                                    "id": {
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "author": {
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "file": {
-                                        "description": "Name of the file you want to import required.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "relativeToChangelogFile": {
-                                        "description": "File path relative to the changelog file containing the element rather than to the classpath. Default: false",
-                                        "type": "boolean",
-                                        "default": false
-                                    },
-                                    "context": {
-                                        "description": "Appends a context (using an AND statement) to all contained changesets.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "labels": {
-                                        "description": "Appends a label to all contained changesets.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "ignore": {
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "created": {
-                                        "type": "string",
-                                        "default": ""
-                                    }
-                                },
-                                "additionalProperties": true
-                            },
-                            "includeAll": {
-                                "$comment": "https://docs.liquibase.com/concepts/advanced/includeall.html?Highlight=includeAll",
-                                "description": "The <includeAll> tag allows you to specify a directory that contains multiple changelog files. It is used within your master changelog file to call on the directory and include all .xml files as changelog files, and all .sql files as individual changes.",
-                                "type": "object",
-                                "default": {},
-                                "properties": {
-                                    "path": {
-                                        "description": "Name of the path you want to reference.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "errorIfMissingOrEmpty": {
-                                        "description": "Controls what happens if the path listed does not exist or is an empty directory. Default: false. If set to true, the update will fail.",
-                                        "type": "boolean",
-                                        "default": false
-                                    },
-                                    "relativeToChangelogFile": {
-                                        "description": "File path relative to the changelog file containing the element rather than to the classpath. Default: false.",
-                                        "type": "boolean",
-                                        "default": false
-                                    },
-                                    "resourceComparator": {
-                                        "description": "A string containing the name of the class you want to use for sorting.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "filter": {
-                                        "description": "A class name that allows you to create custom filters.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "context": {
-                                        "description": "Appends a context (using an AND statement) to all contained changesets.",
-                                        "type": "string",
-                                        "default": ""
-                                    }
-                                },
-                                "additionalProperties": true
-                            },
-                            "logicalFilePath": {
-                                "description": "Overrides the file name and path when creating the unique identifier of changesets. It is required when you want to move or rename changelogs.",
+                            "comment": {
+                                "description": "Specifies the description of the changeset. XML comments will provide the same benefit. Future releases of Liquibase may be able to make use of <comment> tag comments to generate documentation.",
                                 "type": "string",
                                 "default": ""
+                            },
+                            "changes": {
+                                "$ref": "#/definitions/changeSetChildren"
+                            },
+                            "rollback": {
+                                "$ref": "#/definitions/rollback"
+                            },
+                            "modifySql": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/modifySql"
+                                }
+                            }
+                        },
+                        "additionalProperties": true
+                    },
+                    "include": {
+                        "$comment": "https://docs.liquibase.com/concepts/advanced/include.html",
+                        "description": "The <include> tag is used within your master changelog to reference other changelogs.",
+                        "type": "object",
+                        "default": {},
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "default": ""
+                            },
+                            "author": {
+                                "type": "string",
+                                "default": ""
+                            },
+                            "file": {
+                                "description": "Name of the file you want to import required.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "relativeToChangelogFile": {
+                                "description": "File path relative to the changelog file containing the element rather than to the classpath. Default: false",
+                                "type": "boolean",
+                                "default": false
                             },
                             "context": {
-                                "$comment": "https://docs.liquibase.com/concepts/advanced/contexts.html",
+                                "description": "Appends a context (using an AND statement) to all contained changesets.",
                                 "type": "string",
                                 "default": ""
                             },
-                            "changeLogId": {
-                                "type": "string"
+                            "labels": {
+                                "description": "Appends a label to all contained changesets.",
+                                "type": "string",
+                                "default": ""
                             },
-                            "objectQuotingStrategy": {
-                                "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. The names of objects are used differently in databases. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
-                                "$ref": "#/definitions/objectQuotingStrategy",
+                            "ignore": {
+                                "type": "string",
+                                "default": ""
+                            },
+                            "created": {
+                                "type": "string",
                                 "default": ""
                             }
                         },
                         "additionalProperties": true
+                    },
+                    "includeAll": {
+                        "$comment": "https://docs.liquibase.com/concepts/advanced/includeall.html?Highlight=includeAll",
+                        "description": "The <includeAll> tag allows you to specify a directory that contains multiple changelog files. It is used within your master changelog file to call on the directory and include all .xml files as changelog files, and all .sql files as individual changes.",
+                        "type": "object",
+                        "default": {},
+                        "properties": {
+                            "path": {
+                                "description": "Name of the path you want to reference.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "errorIfMissingOrEmpty": {
+                                "description": "Controls what happens if the path listed does not exist or is an empty directory. Default: false. If set to true, the update will fail.",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "relativeToChangelogFile": {
+                                "description": "File path relative to the changelog file containing the element rather than to the classpath. Default: false.",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "resourceComparator": {
+                                "description": "A string containing the name of the class you want to use for sorting.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "filter": {
+                                "description": "A class name that allows you to create custom filters.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "context": {
+                                "description": "Appends a context (using an AND statement) to all contained changesets.",
+                                "type": "string",
+                                "default": ""
+                            }
+                        },
+                        "additionalProperties": true
+                    },
+                    "logicalFilePath": {
+                        "description": "Overrides the file name and path when creating the unique identifier of changesets. It is required when you want to move or rename changelogs.",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "context": {
+                        "$comment": "https://docs.liquibase.com/concepts/advanced/contexts.html",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "changeLogId": {
+                        "type": "string"
+                    },
+                    "objectQuotingStrategy": {
+                        "description": "Controls how object names are quoted in the generated SQL or used in calls to the database. The names of objects are used differently in databases. For example, Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is LEGACY.\nLEGACY - the same behavior as in Liquibase 2.0\nQUOTE_ALL_OBJECTS - every object gets quoted. For example: person becomes \"person\".\nQUOTE_ONLY_RESERVED_WORDS - reserved keywords and invalid column names are quoted.",
+                        "$ref": "#/definitions/objectQuotingStrategy",
+                        "default": ""
                     }
-                ]
+                },
+                "additionalProperties": true
             }
         },
         "rollback": {
@@ -784,21 +780,17 @@
             "default": [],
             "minItems": 1,
             "items": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "default": {},
-                        "properties": {
-                            "column": {
-                                "$ref": "#/definitions/column"
-                            },
-                            "modifySql": {
-                                "$ref": "#/definitions/modifySql"
-                            }
-                        },
-                        "additionalProperties": true
+                "type": "object",
+                "default": {},
+                "properties": {
+                    "column": {
+                        "$ref": "#/definitions/column"
+                    },
+                    "modifySql": {
+                        "$ref": "#/definitions/modifySql"
                     }
-                ]
+                },
+                "additionalProperties": true
             }
         },
         "PreConditionChildren": {
@@ -807,295 +799,291 @@
             "type": "array",
             "default": [],
             "items": {
-                "anyOf": [
-                    {
+                "type": "object",
+                "default": {},
+                "properties": {
+                    "onFailMessage": {
+                        "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "onErrorMessage": {
+                        "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
+                        "type": "string",
+                        "default": ""
+                    },
+                    "onFail": {
+                        "description": "Controls what happens if the preconditions check fails. maxOccurs=1",
+                        "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
+                        "default": "HALT"
+                    },
+                    "onError": {
+                        "description": "Controls what happens if there is an error checking whether the precondition passed or not. maxOccurs=1",
+                        "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
+                        "default": "HALT"
+                    },
+                    "onSqlOutput": {
+                        "description": "Controls what to do in the updateSQL mode. maxOccurs=1",
+                        "$ref": "#/definitions/onChangeLogPreconditionOnSqlOutput",
+                        "default": "IGNORE"
+                    },
+                    "and": {
+                        "minItems": 1,
+                        "$ref": "#/definitions/PreConditionChildren"
+                    },
+                    "or": {
+                        "minItems": 1,
+                        "$ref": "#/definitions/PreConditionChildren"
+                    },
+                    "not": {
+                        "minItems": 1,
+                        "$ref": "#/definitions/PreConditionChildren"
+                    },
+                    "dbms": {
+                        "description": "Defines if the database executed against matches the type specified.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "type"
+                        ],
+                        "properties": {
+                            "type": {
+                                "description": "The type of database expected. Multiple dbms values can be specified using comma-separated values. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "runningAs": {
+                        "description": "Defines if the database user executed under matches the username specified.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "username"
+                        ],
+                        "properties": {
+                            "username": {
+                                "description": "The database user script which is expected to run as. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "changeSetExecuted": {
+                        "description": "Defines if the specified changeset has already been executed.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "id",
+                            "author",
+                            "changeLogFile"
+                        ],
+                        "properties": {
+                            "id": {
+                                "description": "The changeset id. (required)",
+                                "type": "string"
+                            },
+                            "author": {
+                                "description": "The changeset author. (required)",
+                                "type": "string"
+                            },
+                            "changeLogFile": {
+                                "description": "The file name (including classpath relative path) of the changeset. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "tableExists": {
+                        "description": "Defines if the specified table exists in the database.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "tableName"
+                        ],
+                        "properties": {
+                            "schemaName": {
+                                "description": "The name of the table's schema.",
+                                "type": "string"
+                            },
+                            "tableName": {
+                                "description": "The name of the table. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "columnExists": {
+                        "description": "Defines if the specified column exists in the database.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "tableName",
+                            "columnName"
+                        ],
+                        "properties": {
+                            "schemaName": {
+                                "description": "The name of the table's schema.",
+                                "type": "string"
+                            },
+                            "tableName": {
+                                "description": "The name of the column's table. (required)",
+                                "type": "string"
+                            },
+                            "columnName": {
+                                "description": "The name of the column. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "sequenceExists": {
+                        "description": "Defines if the specified sequence exists in the database.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "sequenceName"
+                        ],
+                        "properties": {
+                            "schemaName": {
+                                "description": "The name of the sequences' schema.",
+                                "type": "string"
+                            },
+                            "sequenceName": {
+                                "description": "The name of the sequence. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "foreignKeyConstraintExists": {
+                        "description": "Defines if the specified foreign key exists in the database.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "foreignKeyName"
+                        ],
+                        "properties": {
+                            "schemaName": {
+                                "description": "The name of the foreign key's schema.",
+                                "type": "string"
+                            },
+                            "foreignKeyName": {
+                                "description": "The name of the foreign key. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "indexExists": {
+                        "description": "Defines if the specified index exists in the database. You can either specify the indexName attribute or tableName and columnName attributes.\nNote: There are a few databases where the indexName is not unique, that's why both indexName and tableName can be used.",
                         "type": "object",
                         "default": {},
                         "properties": {
-                            "onFailMessage": {
-                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
-                                "type": "string",
-                                "default": ""
+                            "schemaName": {
+                                "description": "The name of the index's schema.",
+                                "type": "string"
                             },
-                            "onErrorMessage": {
-                                "description": "Provides a custom message to output when preconditions fail. maxOccurs=1",
-                                "type": "string",
-                                "default": ""
+                            "indexName": {
+                                "description": "The name of the index.",
+                                "type": "string"
                             },
-                            "onFail": {
-                                "description": "Controls what happens if the preconditions check fails. maxOccurs=1",
-                                "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
-                                "default": "HALT"
+                            "tableName": {
+                                "description": "The name of the table.",
+                                "type": "string"
                             },
-                            "onError": {
-                                "description": "Controls what happens if there is an error checking whether the precondition passed or not. maxOccurs=1",
-                                "$ref": "#/definitions/onChangeSetPreconditionErrorOrFail",
-                                "default": "HALT"
+                            "columnName": {
+                                "description": "The name of the column.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "primaryKeyExists": {
+                        "description": "Defines if the specified primary key exists in the database.\n(tableName or primaryKeyName is required)",
+                        "type": "object",
+                        "default": {},
+                        "properties": {
+                            "schemaName": {
+                                "description": "The name of the primary key's schema.",
+                                "type": "string"
                             },
-                            "onSqlOutput": {
-                                "description": "Controls what to do in the updateSQL mode. maxOccurs=1",
-                                "$ref": "#/definitions/onChangeLogPreconditionOnSqlOutput",
-                                "default": "IGNORE"
+                            "primaryKeyName": {
+                                "description": "The name of the primary key.",
+                                "type": "string"
                             },
-                            "and": {
-                                "minItems": 1,
-                                "$ref": "#/definitions/PreConditionChildren"
+                            "tableName": {
+                                "description": "The name of the table containing primary key.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "viewExists": {
+                        "description": "Defines if the specified view exists in the database.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "viewName"
+                        ],
+                        "properties": {
+                            "schemaName": {
+                                "description": "The name of the view's schema.",
+                                "type": "string"
                             },
-                            "or": {
-                                "minItems": 1,
-                                "$ref": "#/definitions/PreConditionChildren"
+                            "viewName": {
+                                "description": "The name of the view. (required)",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "FIXME": {
+                        "description": "Missing: tableIsEmpty; rowCount; expectedQuotingStrategy"
+                    },
+                    "sqlCheck": {
+                        "description": "Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.\n\nTo check a number of rows, use the count SQL function.\nTo check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "expectedResult"
+                        ],
+                        "properties": {
+                            "expectedResult": {
+                                "description": "The value to compare the SQL result to. (required)",
+                                "type": "integer"
                             },
-                            "not": {
-                                "minItems": 1,
-                                "$ref": "#/definitions/PreConditionChildren"
+                            "sql": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "changeLogPropertyDefined": {
+                        "description": "Checks whether given changelog attribute is present. It fails if the value is not the same as given.",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "property"
+                        ],
+                        "properties": {
+                            "property": {
+                                "description": "The name of the property to check. (required)",
+                                "type": "string"
                             },
-                            "dbms": {
-                                "description": "Defines if the database executed against matches the type specified.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "type"
-                                ],
-                                "properties": {
-                                    "type": {
-                                        "description": "The type of database expected. Multiple dbms values can be specified using comma-separated values. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "runningAs": {
-                                "description": "Defines if the database user executed under matches the username specified.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "username"
-                                ],
-                                "properties": {
-                                    "username": {
-                                        "description": "The database user script which is expected to run as. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "changeSetExecuted": {
-                                "description": "Defines if the specified changeset has already been executed.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "id",
-                                    "author",
-                                    "changeLogFile"
-                                ],
-                                "properties": {
-                                    "id": {
-                                        "description": "The changeset id. (required)",
-                                        "type": "string"
-                                    },
-                                    "author": {
-                                        "description": "The changeset author. (required)",
-                                        "type": "string"
-                                    },
-                                    "changeLogFile": {
-                                        "description": "The file name (including classpath relative path) of the changeset. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "tableExists": {
-                                "description": "Defines if the specified table exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "tableName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the table's schema.",
-                                        "type": "string"
-                                    },
-                                    "tableName": {
-                                        "description": "The name of the table. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "columnExists": {
-                                "description": "Defines if the specified column exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "tableName",
-                                    "columnName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the table's schema.",
-                                        "type": "string"
-                                    },
-                                    "tableName": {
-                                        "description": "The name of the column's table. (required)",
-                                        "type": "string"
-                                    },
-                                    "columnName": {
-                                        "description": "The name of the column. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "sequenceExists": {
-                                "description": "Defines if the specified sequence exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "sequenceName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the sequences' schema.",
-                                        "type": "string"
-                                    },
-                                    "sequenceName": {
-                                        "description": "The name of the sequence. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "foreignKeyConstraintExists": {
-                                "description": "Defines if the specified foreign key exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "foreignKeyName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the foreign key's schema.",
-                                        "type": "string"
-                                    },
-                                    "foreignKeyName": {
-                                        "description": "The name of the foreign key. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "indexExists": {
-                                "description": "Defines if the specified index exists in the database. You can either specify the indexName attribute or tableName and columnName attributes.\nNote: There are a few databases where the indexName is not unique, that's why both indexName and tableName can be used.",
-                                "type": "object",
-                                "default": {},
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the index's schema.",
-                                        "type": "string"
-                                    },
-                                    "indexName": {
-                                        "description": "The name of the index.",
-                                        "type": "string"
-                                    },
-                                    "tableName": {
-                                        "description": "The name of the table.",
-                                        "type": "string"
-                                    },
-                                    "columnName": {
-                                        "description": "The name of the column.",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "primaryKeyExists": {
-                                "description": "Defines if the specified primary key exists in the database.\n(tableName or primaryKeyName is required)",
-                                "type": "object",
-                                "default": {},
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the primary key's schema.",
-                                        "type": "string"
-                                    },
-                                    "primaryKeyName": {
-                                        "description": "The name of the primary key.",
-                                        "type": "string"
-                                    },
-                                    "tableName": {
-                                        "description": "The name of the table containing primary key.",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "viewExists": {
-                                "description": "Defines if the specified view exists in the database.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "viewName"
-                                ],
-                                "properties": {
-                                    "schemaName": {
-                                        "description": "The name of the view's schema.",
-                                        "type": "string"
-                                    },
-                                    "viewName": {
-                                        "description": "The name of the view. (required)",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "FIXME": {
-                                "description": "Missing: tableIsEmpty; rowCount; expectedQuotingStrategy"
-                            },
-                            "sqlCheck": {
-                                "description": "Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.\n\nTo check a number of rows, use the count SQL function.\nTo check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "expectedResult"
-                                ],
-                                "properties": {
-                                    "expectedResult": {
-                                        "description": "The value to compare the SQL result to. (required)",
-                                        "type": "integer"
-                                    },
-                                    "sql": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "changeLogPropertyDefined": {
-                                "description": "Checks whether given changelog attribute is present. It fails if the value is not the same as given.",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "property"
-                                ],
-                                "properties": {
-                                    "property": {
-                                        "description": "The name of the property to check. (required)",
-                                        "type": "string"
-                                    },
-                                    "value": {
-                                        "description": "The required value for a given property.",
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "customPrecondition": {
-                                "description": "Can be created by adding a class that implements the liquibase.precondition.CustomPrecondition interface. Parameters on custom classes are set through reflection based on the <param> sub-tags. Pass parameters as strings to the custom precondition.\n\nThe customPrecondition sub-tags:\nparam - the parameter to pass to the custom precondition.\nname - the name of the parameter to set. (required)\nvalue - a string value to set parameter to. (required)",
-                                "$comment": "FIXME How can pass params?",
-                                "type": "object",
-                                "default": {},
-                                "required": [
-                                    "className"
-                                ],
-                                "properties": {
-                                    "className": {
-                                        "description": "The name of the custom precondition class. (required)",
-                                        "type": "string"
-                                    }
-                                },
-                                "additionalProperties": true
+                            "value": {
+                                "description": "The required value for a given property.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "customPrecondition": {
+                        "description": "Can be created by adding a class that implements the liquibase.precondition.CustomPrecondition interface. Parameters on custom classes are set through reflection based on the <param> sub-tags. Pass parameters as strings to the custom precondition.\n\nThe customPrecondition sub-tags:\nparam - the parameter to pass to the custom precondition.\nname - the name of the parameter to set. (required)\nvalue - a string value to set parameter to. (required)",
+                        "$comment": "FIXME How can pass params?",
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "className"
+                        ],
+                        "properties": {
+                            "className": {
+                                "description": "The name of the custom precondition class. (required)",
+                                "type": "string"
                             }
                         },
                         "additionalProperties": true
                     }
-                ]
+                },
+                "additionalProperties": true
             }
         },
         "createTable": {
@@ -1287,61 +1275,57 @@
             "type": "array",
             "default": [],
             "items": {
-                "anyOf": [
-                    {
+                "type": "object",
+                "default": {},
+                "properties": {
+                    "param": {
                         "type": "object",
                         "default": {},
                         "properties": {
-                            "param": {
-                                "type": "object",
-                                "default": {},
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "value": {
-                                        "description": "Value of the attribute.\nNote: If not set, then the first valueXXX defined is used in the order they appear.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "valueNumeric": {
-                                        "description": "integer value of the attribute.",
-                                        "type": "number",
-                                        "default": ""
-                                    },
-                                    "valueBoolean": {
-                                        "description": "boolean value of the attribute.",
-                                        "type": "boolean",
-                                        "default": ""
-                                    },
-                                    "valueDate": {
-                                        "description": "Date and/or Time value to set the attribute to. The value shall be specified in one of the following forms: \"YYYY-MM-DD\", \"hh:mm:ss\" or \"YYYY-MM-DDThh:mm:ss\".",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "valueComputed": {
-                                        "description": "A value that is returned from a function or procedure call. This attribute shall contain the function name to call.",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "valueSequenceNext": {
-                                        "description": "Name of the sequence which next value is used",
-                                        "type": "string",
-                                        "default": ""
-                                    },
-                                    "valueSequenceCurrent": {
-                                        "description": "Name of the sequence which current value is used",
-                                        "type": "string",
-                                        "default": ""
-                                    }
-                                },
-                                "additionalProperties": true
+                            "name": {
+                                "type": "string",
+                                "default": ""
+                            },
+                            "value": {
+                                "description": "Value of the attribute.\nNote: If not set, then the first valueXXX defined is used in the order they appear.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "valueNumeric": {
+                                "description": "integer value of the attribute.",
+                                "type": "number",
+                                "default": ""
+                            },
+                            "valueBoolean": {
+                                "description": "boolean value of the attribute.",
+                                "type": "boolean",
+                                "default": ""
+                            },
+                            "valueDate": {
+                                "description": "Date and/or Time value to set the attribute to. The value shall be specified in one of the following forms: \"YYYY-MM-DD\", \"hh:mm:ss\" or \"YYYY-MM-DDThh:mm:ss\".",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "valueComputed": {
+                                "description": "A value that is returned from a function or procedure call. This attribute shall contain the function name to call.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "valueSequenceNext": {
+                                "description": "Name of the sequence which next value is used",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "valueSequenceCurrent": {
+                                "description": "Name of the sequence which current value is used",
+                                "type": "string",
+                                "default": ""
                             }
                         },
                         "additionalProperties": true
                     }
-                ]
+                },
+                "additionalProperties": true
             }
         },
         "tagDatabase": {
@@ -2969,18 +2953,14 @@
                     "description": "Arguments for the executable",
                     "type": "array",
                     "items": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "value": {
-                                        "description": "The value of the attribute (for example: '-param')",
-                                        "type": "string",
-                                        "default": ""
-                                    }
-                                }
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "description": "The value of the attribute (for example: '-param')",
+                                "type": "string",
+                                "default": ""
                             }
-                        ]
+                        }
                     }
                 }
             },
@@ -3088,159 +3068,155 @@
             "type": "array",
             "default": [],
             "items": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "default": {},
-                        "properties": {
-                            "tagDatabase": {
-                                "$ref": "#/definitions/tagDatabase"
-                            },
-                            "createTable": {
-                                "$ref": "#/definitions/createTable"
-                            },
-                            "dropTable": {
-                                "$ref": "#/definitions/dropTable"
-                            },
-                            "createView": {
-                                "$ref": "#/definitions/createView"
-                            },
-                            "renameView": {
-                                "$ref": "#/definitions/renameView"
-                            },
-                            "dropView": {
-                                "$ref": "#/definitions/dropView"
-                            },
-                            "insert": {
-                                "$ref": "#/definitions/insert"
-                            },
-                            "addColumn": {
-                                "$ref": "#/definitions/addColumn"
-                            },
-                            "sql": {
-                                "$ref": "#/definitions/sql"
-                            },
-                            "createProcedure": {
-                                "$ref": "#/definitions/createProcedure"
-                            },
-                            "dropProcedure": {
-                                "$ref": "#/definitions/dropProcedure"
-                            },
-                            "sqlFile": {
-                                "$ref": "#/definitions/sqlFile"
-                            },
-                            "renameTable": {
-                                "$ref": "#/definitions/renameTable"
-                            },
-                            "renameColumn": {
-                                "$ref": "#/definitions/renameColumn"
-                            },
-                            "dropColumn": {
-                                "$ref": "#/definitions/dropColumn"
-                            },
-                            "mergeColumns": {
-                                "$ref": "#/definitions/mergeColumns"
-                            },
-                            "modifyDataType": {
-                                "$ref": "#/definitions/modifyDataType"
-                            },
-                            "createSequence": {
-                                "$ref": "#/definitions/createSequence"
-                            },
-                            "alterSequence": {
-                                "$ref": "#/definitions/alterSequence"
-                            },
-                            "dropSequence": {
-                                "$ref": "#/definitions/dropSequence"
-                            },
-                            "renameSequence": {
-                                "$ref": "#/definitions/renameSequence"
-                            },
-                            "createIndex": {
-                                "$ref": "#/definitions/createIndex"
-                            },
-                            "dropIndex": {
-                                "$ref": "#/definitions/dropIndex"
-                            },
-                            "addNotNullConstraint": {
-                                "$ref": "#/definitions/addNotNullConstraint"
-                            },
-                            "dropNotNullConstraint": {
-                                "$ref": "#/definitions/dropNotNullConstraint"
-                            },
-                            "addForeignKeyConstraint": {
-                                "$ref": "#/definitions/addForeignKeyConstraint"
-                            },
-                            "dropForeignKeyConstraint": {
-                                "$ref": "#/definitions/dropForeignKeyConstraint"
-                            },
-                            "dropAllForeignKeyConstraints": {
-                                "$ref": "#/definitions/dropAllForeignKeyConstraints"
-                            },
-                            "addPrimaryKey": {
-                                "$ref": "#/definitions/addPrimaryKey"
-                            },
-                            "dropPrimaryKey": {
-                                "$ref": "#/definitions/dropPrimaryKey"
-                            },
-                            "addLookupTable": {
-                                "$ref": "#/definitions/addLookupTable"
-                            },
-                            "addAutoIncrement": {
-                                "$ref": "#/definitions/addAutoIncrement"
-                            },
-                            "addDefaultValue": {
-                                "$ref": "#/definitions/addDefaultValue"
-                            },
-                            "dropDefaultValue": {
-                                "$ref": "#/definitions/dropDefaultValue"
-                            },
-                            "addUniqueConstraint": {
-                                "$ref": "#/definitions/addUniqueConstraint"
-                            },
-                            "dropUniqueConstraint": {
-                                "$ref": "#/definitions/dropUniqueConstraint"
-                            },
-                            "setTableRemarks": {
-                                "$ref": "#/definitions/setTableRemarks"
-                            },
-                            "setColumnRemarks": {
-                                "$ref": "#/definitions/setColumnRemarks"
-                            },
-                            "customChange": {
-                                "$ref": "#/definitions/customChange"
-                            },
-                            "update": {
-                                "$ref": "#/definitions/update"
-                            },
-                            "delete": {
-                                "$ref": "#/definitions/delete"
-                            },
-                            "loadData": {
-                                "$ref": "#/definitions/loadData"
-                            },
-                            "loadUpdateData": {
-                                "$ref": "#/definitions/loadUpdateData"
-                            },
-                            "executeCommand": {
-                                "$ref": "#/definitions/executeCommand"
-                            },
-                            "stop": {
-                                "$ref": "#/definitions/stop"
-                            },
-                            "output": {
-                                "$ref": "#/definitions/output"
-                            },
-                            "empty": {
-                                "$ref": "#/definitions/empty"
-                            },
-                            "rollback": {
-                                "$ref": "#/definitions/rollback"
-                            }
-                        },
-                        "additionalProperties": true
+                "type": "object",
+                "default": {},
+                "properties": {
+                    "tagDatabase": {
+                        "$ref": "#/definitions/tagDatabase"
+                    },
+                    "createTable": {
+                        "$ref": "#/definitions/createTable"
+                    },
+                    "dropTable": {
+                        "$ref": "#/definitions/dropTable"
+                    },
+                    "createView": {
+                        "$ref": "#/definitions/createView"
+                    },
+                    "renameView": {
+                        "$ref": "#/definitions/renameView"
+                    },
+                    "dropView": {
+                        "$ref": "#/definitions/dropView"
+                    },
+                    "insert": {
+                        "$ref": "#/definitions/insert"
+                    },
+                    "addColumn": {
+                        "$ref": "#/definitions/addColumn"
+                    },
+                    "sql": {
+                        "$ref": "#/definitions/sql"
+                    },
+                    "createProcedure": {
+                        "$ref": "#/definitions/createProcedure"
+                    },
+                    "dropProcedure": {
+                        "$ref": "#/definitions/dropProcedure"
+                    },
+                    "sqlFile": {
+                        "$ref": "#/definitions/sqlFile"
+                    },
+                    "renameTable": {
+                        "$ref": "#/definitions/renameTable"
+                    },
+                    "renameColumn": {
+                        "$ref": "#/definitions/renameColumn"
+                    },
+                    "dropColumn": {
+                        "$ref": "#/definitions/dropColumn"
+                    },
+                    "mergeColumns": {
+                        "$ref": "#/definitions/mergeColumns"
+                    },
+                    "modifyDataType": {
+                        "$ref": "#/definitions/modifyDataType"
+                    },
+                    "createSequence": {
+                        "$ref": "#/definitions/createSequence"
+                    },
+                    "alterSequence": {
+                        "$ref": "#/definitions/alterSequence"
+                    },
+                    "dropSequence": {
+                        "$ref": "#/definitions/dropSequence"
+                    },
+                    "renameSequence": {
+                        "$ref": "#/definitions/renameSequence"
+                    },
+                    "createIndex": {
+                        "$ref": "#/definitions/createIndex"
+                    },
+                    "dropIndex": {
+                        "$ref": "#/definitions/dropIndex"
+                    },
+                    "addNotNullConstraint": {
+                        "$ref": "#/definitions/addNotNullConstraint"
+                    },
+                    "dropNotNullConstraint": {
+                        "$ref": "#/definitions/dropNotNullConstraint"
+                    },
+                    "addForeignKeyConstraint": {
+                        "$ref": "#/definitions/addForeignKeyConstraint"
+                    },
+                    "dropForeignKeyConstraint": {
+                        "$ref": "#/definitions/dropForeignKeyConstraint"
+                    },
+                    "dropAllForeignKeyConstraints": {
+                        "$ref": "#/definitions/dropAllForeignKeyConstraints"
+                    },
+                    "addPrimaryKey": {
+                        "$ref": "#/definitions/addPrimaryKey"
+                    },
+                    "dropPrimaryKey": {
+                        "$ref": "#/definitions/dropPrimaryKey"
+                    },
+                    "addLookupTable": {
+                        "$ref": "#/definitions/addLookupTable"
+                    },
+                    "addAutoIncrement": {
+                        "$ref": "#/definitions/addAutoIncrement"
+                    },
+                    "addDefaultValue": {
+                        "$ref": "#/definitions/addDefaultValue"
+                    },
+                    "dropDefaultValue": {
+                        "$ref": "#/definitions/dropDefaultValue"
+                    },
+                    "addUniqueConstraint": {
+                        "$ref": "#/definitions/addUniqueConstraint"
+                    },
+                    "dropUniqueConstraint": {
+                        "$ref": "#/definitions/dropUniqueConstraint"
+                    },
+                    "setTableRemarks": {
+                        "$ref": "#/definitions/setTableRemarks"
+                    },
+                    "setColumnRemarks": {
+                        "$ref": "#/definitions/setColumnRemarks"
+                    },
+                    "customChange": {
+                        "$ref": "#/definitions/customChange"
+                    },
+                    "update": {
+                        "$ref": "#/definitions/update"
+                    },
+                    "delete": {
+                        "$ref": "#/definitions/delete"
+                    },
+                    "loadData": {
+                        "$ref": "#/definitions/loadData"
+                    },
+                    "loadUpdateData": {
+                        "$ref": "#/definitions/loadUpdateData"
+                    },
+                    "executeCommand": {
+                        "$ref": "#/definitions/executeCommand"
+                    },
+                    "stop": {
+                        "$ref": "#/definitions/stop"
+                    },
+                    "output": {
+                        "$ref": "#/definitions/output"
+                    },
+                    "empty": {
+                        "$ref": "#/definitions/empty"
+                    },
+                    "rollback": {
+                        "$ref": "#/definitions/rollback"
                     }
-                ]
+                },
+                "additionalProperties": true
             }
         }
     },

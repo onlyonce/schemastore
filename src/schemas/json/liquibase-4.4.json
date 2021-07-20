@@ -898,6 +898,225 @@
             },
             "additionalProperties": true
         },
+        "@attributeGroup.param": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "default": ""
+                },
+                "value": {
+                    "description": "The value for which to set the column. The value will be surrounded by quote marks and nested quote marks will be escaped.",
+                    "type": "string",
+                    "default": ""
+                },
+                "valueNumeric": {
+                    "description": "The numeric value to set the column to. The value will not be escaped and will not be nested in quote marks.",
+                    "type": "number",
+                    "default": ""
+                },
+                "valueBoolean": {
+                    "description": "The boolean value to set the column to. The actual value string inserted will depend on the database implementation.",
+                    "type": "boolean",
+                    "default": ""
+                },
+                "valueDate": {
+                    "description": "The date and time value to set the column to. The value is specified in one of the following forms: YYYY-MM-DD, hh:mm:ss, or YYYY-MM-DDThh:mm:ss.",
+                    "type": "string",
+                    "default": ""
+                },
+                "valueComputed": {
+                    "description": "The value that is returned from a function or procedure call. This attribute will contain the function to call.",
+                    "type": "string",
+                    "default": ""
+                },
+                "valueSequenceNext": {
+                    "$comment": "https://docs.liquibase.com/change-types/community/update.html",
+                    "description": "The name of the sequence in which the next value is used.",
+                    "type": "string",
+                    "default": ""
+                },
+                "valueSequenceCurrent": {
+                    "$comment": "https://docs.liquibase.com/change-types/community/update.html",
+                    "description": "The name of the sequence in which the current value is used.",
+                    "type": "string",
+                    "default": ""
+                }
+            }
+        },
+        "@attributeGroup.tableNameAttribute": {
+            "required": [
+                "tableName"
+            ],
+            "properties": {
+                "catalogName": {
+                    "description": "The name of the catalog",
+                    "type": "string",
+                    "default": ""
+                },
+                "schemaName": {
+                    "description": "The name of the schema",
+                    "type": "string",
+                    "default": ""
+                },
+                "tableName": {
+                    "description": "The name of the table",
+                    "type": "string",
+                    "default": ""
+                }
+            }
+        },
+        "@attributeGroup.dropTableAttributes": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/@attributeGroup.tableNameAttribute"
+                },
+                {
+                    "properties": {
+                        "cascadeConstraints": {
+                            "description": "Add the `CASCADE CONSTRAINTS` to the statement",
+                            "$ref": "#/definitions/@simpleType.booleanExp",
+                            "default": false
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": true
+        },
+        "@attributeGroup.renameTableAttributes": {
+            "required": [
+                "oldTableName",
+                "newTableName"
+            ],
+            "properties": {
+                "catalogName": {
+                    "$ref": "#/definitions/catalogName"
+                },
+                "schemaName": {
+                    "$ref": "#/definitions/schemaName"
+                },
+                "oldTableName": {
+                    "description": "Name of the table to rename",
+                    "type": "string",
+                    "default": ""
+                },
+                "newTableName": {
+                    "description": "New name for the table",
+                    "type": "string",
+                    "default": ""
+                }
+            },
+            "additionalProperties": true
+        },
+        "@attributeGroup.renameColumnAttributes": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/@attributeGroup.tableNameAttribute"
+                },
+                {
+                    "required": [
+                        "oldColumnName",
+                        "newColumnName"
+                    ],
+                    "properties": {
+                        "oldColumnName": {
+                            "description": "Name of the existing column to rename",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "newColumnName": {
+                            "description": "Name to rename the column to",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "columnDataType": {
+                            "description": "Data type of the column",
+                            "type": "string",
+                            "default": ""
+                        },
+                        "remarks": {
+                            "description": "Remarks of the column",
+                            "type": "string",
+                            "default": ""
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": true
+        },
+        "@attributeGroup.dropColumnAttributes": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/@attributeGroup.tableNameAttribute"
+                },
+                {
+                    "properties": {
+                        "columnName": {
+                            "description": "Name of the column to drop, if dropping a single column. Ignored if nested 'column's are defined",
+                            "type": "string",
+                            "default": ""
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": true
+        },
+        "@attributeGroup.sequenceAttributes": {
+            "required": ["sequenceName"],
+            "properties": {
+                "catalogName": {
+                    "$ref": "#/definitions/catalogName"
+                },
+                "schemaName": {
+                    "$ref": "#/definitions/schemaName"
+                },
+                "sequenceName": {
+                    "description": "Name of the sequence to create",
+                    "type": "string",
+                    "default": ""
+                },
+                "startValue": {
+                    "description": "The first sequence number to be generated.",
+                    "type": "integer",
+                    "default": ""
+                },
+                "incrementBy": {
+                    "description": "Interval between sequence numbers",
+                    "type": "integer",
+                    "default": ""
+                },
+                "maxValue": {
+                    "description": "The maximum value of the sequence",
+                    "type": "integer",
+                    "default": ""
+                },
+                "minValue": {
+                    "description": "The minimum value of the sequence",
+                    "type": "integer",
+                    "default": ""
+                },
+                "ordered": {
+                    "description": "Does the sequence need to be guaranteed to be generated in the order of request?",
+                    "type": "boolean",
+                    "default": ""
+                },
+                "cacheSize": {
+                    "description": "Number of values to fetch per query",
+                    "type": "integer",
+                    "default": ""
+                },
+                "dataType": {
+                    "description": "Data type of the sequence",
+                    "type": "string",
+                    "default": ""
+                },
+                "cycle": {
+                    "description": "Can the sequence cycle when it hits the max value?",
+                    "type": "boolean",
+                    "default": "false"
+                }
+            },
+            "additionalProperties": true
+        },
         "rollback": {
             "$ref": "#/definitions/changeSetChildren",
             "properties": {
@@ -1522,22 +1741,7 @@
             "required": [
                 "tableName"
             ],
-            "properties": {
-                "catalogName": {
-                    "$ref": "#/definitions/catalogName"
-                },
-                "schemaName": {
-                    "$ref": "#/definitions/schemaName"
-                },
-                "tableName": {
-                    "$ref": "#/definitions/tableName"
-                },
-                "cascadeConstraints": {
-                    "description": "Add the `CASCADE CONSTRAINTS` to the statement",
-                    "type": "boolean",
-                    "default": false
-                }
-            },
+            "$ref": "#/definitions/@attributeGroup.dropTableAttributes",
             "additionalProperties": true
         },
         "renameView": {
@@ -1827,42 +2031,7 @@
             "description": "Renames an existing column.",
             "type": "object",
             "default": {},
-            "required": [
-                "newColumnName",
-                "oldColumnName",
-                "tableName"
-            ],
-            "properties": {
-                "catalogName": {
-                    "$ref": "#/definitions/catalogName"
-                },
-                "schemaName": {
-                    "$ref": "#/definitions/schemaName"
-                },
-                "tableName": {
-                    "$ref": "#/definitions/tableName"
-                },
-                "oldColumnName": {
-                    "description": "Name of the existing column to rename",
-                    "type": "string",
-                    "default": ""
-                },
-                "newColumnName": {
-                    "description": "Name to rename the column to",
-                    "type": "string",
-                    "default": ""
-                },
-                "columnDataType": {
-                    "description": "Data type of the column",
-                    "type": "string",
-                    "default": ""
-                },
-                "remarks": {
-                    "description": "Remarks of the column",
-                    "type": "string",
-                    "default": ""
-                }
-            },
+            "$ref": "#/definitions/@attributeGroup.renameColumnAttributes",
             "additionalProperties": true
         },
         "dropColumn": {
@@ -1870,28 +2039,7 @@
             "description": "Drops an existing column(s).\n\nTo drop a single column, use the simple form of this element where the tableName and columnName are specified as attributes. To drop several columns, specify the tableName as an attribute, and then specify a set of nested <column> tags. If nested <column> tags are present, the columnName attribute will be ignored.",
             "type": "object",
             "default": {},
-            "required": [
-                "tableName"
-            ],
-            "properties": {
-                "catalogName": {
-                    "$ref": "#/definitions/catalogName"
-                },
-                "schemaName": {
-                    "$ref": "#/definitions/schemaName"
-                },
-                "tableName": {
-                    "$ref": "#/definitions/tableName"
-                },
-                "columnName": {
-                    "description": "Name of the column to drop, if dropping a single column. Ignored if nested 'column's are defined",
-                    "type": "string",
-                    "default": ""
-                },
-                "columns": {
-                    "$ref": "#/definitions/columns"
-                }
-            },
+            "$ref": "#/definitions/@attributeGroup.dropColumnAttributes",
             "additionalProperties": true
         },
         "mergeColumns": {

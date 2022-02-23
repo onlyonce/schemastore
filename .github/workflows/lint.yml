@@ -1,0 +1,13 @@
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  lint-editorconfig:
+    runs-on: ubuntu-latest
+    name: Lint for editorconfig violations
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Check for editorconfig violations
+        uses: editorconfig-checker/action-editorconfig-checker@v1

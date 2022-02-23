@@ -82,6 +82,10 @@
                 "identityProviders"
             ],
             "properties": {
+                "rolesSource": {
+                    "type": "string",
+                    "description": "Route to API function for assigning roles. For example, \"/api/GetRoles\". See https://aka.ms/swa-roles-function"
+                },
                 "identityProviders": {
                     "type": "object",
                     "properties": {
@@ -106,10 +110,6 @@
                                         "openIdIssuer": {
                                             "type": "string",
                                             "description": "The endpoint for the OpenID configuration of the AAD tenant"
-                                        },
-                                        "clientId": {
-                                            "type": "string",
-                                            "description": "The client ID for the Azure AD app registration"
                                         },
                                         "clientIdSettingName": {
                                             "type": "string",
@@ -159,10 +159,6 @@
                                         "clientSecretSettingName"
                                     ],
                                     "properties": {
-                                        "clientId": {
-                                            "type": "string",
-                                            "description": "The client ID"
-                                        },
                                         "clientIdSettingName": {
                                             "type": "string",
                                             "description": "The name of the application setting containing the Client ID"
@@ -211,10 +207,6 @@
                                         "appSecretSettingName"
                                     ],
                                     "properties": {
-                                        "appId": {
-                                            "type": "string",
-                                            "description": "The App ID"
-                                        },
                                         "appIdSettingName": {
                                             "type": "string",
                                             "description": "The name of the application setting containing the App ID"
@@ -263,10 +255,6 @@
                                         "clientSecretSettingName"
                                     ],
                                     "properties": {
-                                        "clientId": {
-                                            "type": "string",
-                                            "description": "The client ID"
-                                        },
                                         "clientIdSettingName": {
                                             "type": "string",
                                             "description": "The name of the application setting containing the Client ID"
@@ -315,10 +303,6 @@
                                         "clientSecretSettingName"
                                     ],
                                     "properties": {
-                                        "clientId": {
-                                            "type": "string",
-                                            "description": "The client ID"
-                                        },
                                         "clientIdSettingName": {
                                             "type": "string",
                                             "description": "The name of the application setting containing the Client ID"
@@ -367,10 +351,6 @@
                                         "consumerSecretSettingName"
                                     ],
                                     "properties": {
-                                        "consumerKey": {
-                                            "type": "string",
-                                            "description": "The Consumer Key"
-                                        },
                                         "consumerKeySettingName": {
                                             "type": "string",
                                             "description": "The name of the application setting containing the Consumer Key"
@@ -410,10 +390,6 @@
                                                 "openIdConnectConfiguration"
                                             ],
                                             "properties": {
-                                                "clientId": {
-                                                    "type": "string",
-                                                    "description": "The Client ID"
-                                                },
                                                 "clientIdSettingName": {
                                                     "type": "string",
                                                     "description": "The name of the application setting containing the Client ID"
@@ -630,6 +606,37 @@
                             "192.1.1.1/10"
                         ]
                     ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "forwardingGateway": {
+            "type": "object",
+            "description": "Forwarding gateway configuration",
+            "properties": {
+                "allowedForwardedHosts": {
+                    "type": "array",
+                    "description": "The value of `X-Forwarded-Host` to allow to be used when generating redirect URLs",
+                    "items": {
+                        "type": "string"
+                    },
+                    "examples": [
+                        [
+                            "example.org",
+                            "www.example.org",
+                            "staging.example.org"
+                        ]
+                    ]
+                },
+                "requiredHeaders": {
+                    "type": "object",
+                    "description": "HTTP header name/value pairs that are required for access",
+                    "examples": [
+                        {
+                            "X-Azure-FDID": "10dd26ef"
+                        }
+                    ],
+                    "additionalProperties": true
                 }
             },
             "additionalProperties": false
